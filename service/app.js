@@ -21,9 +21,22 @@ dbPosts.on('value', snapshot => {
     console.log('Error while reading posts from database ' + error);
 });
 
+app.use((request, response, next) => {
+    response.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    response.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    response.setHeader('Access-Control-Allow-Credentials', true);
+
+    next();
+});
+
+app.get('/', (request, response) => {
+    response.send('Service works!');
+});
+
 app.get('/api/posts', (request, response) => {
     console.log('GET [posts]. Requested all posts.');
-    response.send(dbPostsData);
+    response.send(Object.values(dbPostsData));
 });
 
 app.get('/api/posts/:id', (request, response) => {
@@ -50,8 +63,9 @@ app.put('/api/update-post/:id', (request, response) => {
     // @TODO: implement this
 });
 
-app.delete('/api/delete-post', (request, response) => {
+app.delete('/api/delete-post/:id', (request, response) => {
     // @TODO: implement this
+    // if you're going to imeplemnt this then add 'active' field for logical deleting
 });
 
 app.listen(port, () => {

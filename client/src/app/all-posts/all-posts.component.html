@@ -1,0 +1,16 @@
+<div id="header">
+  <h1>One place, all topics</h1>
+  <h3>Whatever you need, you'll find here :)</h3>
+</div>
+
+<ul id="all-posts">
+  <li id="post-item" *ngFor="let post of posts$">
+    <a routerLink="/post/">{{ post.title }}</a>
+
+    <ul>
+      <li>Author: {{ post.author }}</li>
+      <li>{{ post.text }}</li>
+    </ul>
+    
+  </li>
+</ul>
