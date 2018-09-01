@@ -1,3 +1,25 @@
-<p>
-  post works!
-</p>
+<h1>{{ post$.title }}</h1>
+<p>Author: {{ post$.author }}</p>
+
+<p>{{ post$.text }}</p>
+
+<br />
+
+<h4>Leave a comment...</h4>
+<input placeholder="Name" #name type="text" required /> <br />
+<input placeholder="E-Mail" #email type="email" required /> <br />
+<textarea placeholder="Comment" #comment cols=50 rows=5></textarea> <br />
+<button (click)="addNewComment(name.value, email.value, comment.value)" type="submit">Submit</button>
+
+<br />
+
+<h4>All comments</h4>
+
+<ul>
+    <li *ngFor="let comment of post$.comments">
+        <ul id="comment">
+            <li><strong>Name:</strong>{{ comment.name }}</li>
+            <li>{{ comment.comment }}</li>
+        </ul>
+    </li>
+</ul>
