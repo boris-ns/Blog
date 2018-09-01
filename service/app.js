@@ -1,7 +1,10 @@
 const express = require('express');
 const firebase = require('firebase-admin');
 const serviceAccountKey = require('./serviceAccountKey.json');
+
 const utils = require('./utils');
+let Comment = require('./comment');
+let Reader = require('./reader');
 
 const app = express();
 const port = process.env.port || 3000;
@@ -11,28 +14,24 @@ const firebaseApp = firebase.initializeApp({
     databaseURL: 'https://blogapp-c6c40.firebaseio.com/'
 });
 
-const dbPosts = firebase.database().ref('posts');
+const database = firebase.database();
 let dbPostsData;
-
-const dbReaders = firebase.database().ref('readers');
 let dbReadersData;
-
-const dbComments = firebase.database().ref('comments');
 let dbCommentsData;
 
-dbPosts.on('value', snapshot => {
+database.ref('posts').on('value', snapshot => {
     dbPostsData = snapshot.val();
 }, error => {
     console.log('Error while reading posts from database ' + error);
 });
 
-dbReaders.on('value', snapshot => {
+database.ref('readers').on('value', snapshot => {
     dbReadersData = snapshot.val();
 }, error => {
     console.log('Error while reading readers from database ' + error);
 });
 
-dbComments.on('value', snapshot => {
+database.ref('comments').on('value', snapshot => {
     dbCommentsData = snapshot.val();
 }, error => {
     console.log('Error while reading comments from database ' + error);
@@ -45,7 +44,6 @@ app.use((request, response, next) => {
     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     response.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     response.setHeader('Access-Control-Allow-Credentials', true);
-
     next();
 });
 
@@ -59,34 +57,6 @@ app.get('/api/posts', (request, response) => {
     response.send(dataToSend);
 });
 
-function getReadersName(id) {
-    for (let key in dbReadersData) {
-        if (key === id)
-            return dbReadersData[key].name;
-    }
-
-    return "";
-}
-
-function getCommentsForPost(postId) {
-    let comments = new Array();
-
-    for (let key in dbCommentsData) {
-        if (dbCommentsData[key].postId !== postId)
-            continue;
-
-        const readerName = getReadersName(dbCommentsData[key].readerId);
-        const comment = {
-            name: readerName,
-            comment: dbCommentsData[key].text
-        };
-
-        comments.push(comment);
-    }
-
-    return comments;
-}
-
 app.get('/api/posts/:id', (request, response) => {
     const postId = request.params.id;
     const post = dbPostsData[postId];
@@ -98,13 +68,14 @@ app.get('/api/posts/:id', (request, response) => {
         return;
     }
 
-    post.comments = getCommentsForPost(postId);
+    post.comments = utils.getCommentsForPost(dbCommentsData, dbReadersData, postId);
     response.send(post);
 });
 
 app.post('/api/add-post', (request, response) => {
+    // TODO: when time comes refactor this, add evaluations etc.
     console.log('POST [add-post] Request data: ' + JSON.stringify(request.body));
-    dbPosts.push(request.body);
+    database.ref('posts').push(request.body);
     response.send(request.body);
 });
 
@@ -117,16 +88,6 @@ app.delete('/api/delete-post/:id', (request, response) => {
     // if you're going to imeplemnt this then add 'active' field for logical deleting
 });
 
-function readerExists(email) {
-    for (let reader in dbReadersData) {
-        if (dbReadersData[reader].email === email) {
-            return reader;
-        }
-    }
-
-    return false;
-}
-
 app.post('/api/add-comment', (request, response) => {
     let data = request.body;
     console.log('POST [add-comment] Request data: ' + JSON.stringify(data));
@@ -136,31 +97,15 @@ app.post('/api/add-comment', (request, response) => {
         return;
     }
 
-    let readerId = readerExists(data.email);
-    console.log(readerId);
+    let readerId = utils.readerExists(dbReadersData, data.email);
     if (readerId) {
-        const comment = {
-            postId: data.postId,
-            readerId: readerId,
-            text: data.comment
-        };
-
-        dbComments.push(comment);
+        const comment = new Comment.Comment(data.postId, readerId, data.comment);
+        database.ref('comments').push(comment);
     } else {
-        const reader = {
-            name: data.name,
-            email: data.email
-        }
-    
-        dbReaders.push(reader).then(snap => {
+        database.ref('readers').push(new Reader.Reader(data.name, data.email)).then(snap => {
             const readerId = snap.key;
-            const comment = {
-                postId: data.postId,
-                readerId: readerId,
-                text: data.comment
-            }
-    
-            dbComments.push(comment);
+            const comment = new Comment.Comment(data.postId, readerId, data.comment);
+            database.ref('comments').push(comment);
         });
     }
 

@@ -1,3 +1,8 @@
-<p>
-  register works!
-</p>
+<h2>Register</h2>
+
+<input placeholder="Username" #username type="text" required /> <br />
+<input placeholder="E-Mail" #email type="email" required /> <br />
+<input placeholder="Password" #password type="password" required /> <br />
+<input placeholder="Repeat password" #password2 type="password" required /> <br />
+
+<button (click)="onClickRegister(username.value, email.value, password.value, password2.value)" type="submit">Register</button>
