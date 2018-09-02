@@ -44,7 +44,8 @@ function getCommentsForPost(commentsData, readersData, postId) {
         const readerName = getReadersName(readersData, commentsData[key].readerId);
         const comment = {
             name: readerName,
-            comment: commentsData[key].text
+            comment: commentsData[key].text,
+            time: commentsData[key].time
         };
 
         comments.push(comment);

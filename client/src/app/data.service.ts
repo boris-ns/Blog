@@ -16,10 +16,15 @@ export class DataService {
     return this.http.get(`http://localhost:3000/api/posts/${postId}`);
   }
 
+  addPost(newPost) {
+    return this.http.post(`http://localhost:3000/api/add-post`, newPost);
+  }
+
   addComment(comment) {
-    return this.http.post('http://localhost:3000/api/add-comment', comment)
-      .subscribe(response => {
-        
-      });
+    return this.http.post('http://localhost:3000/api/add-comment', comment);
+  }
+
+  registerUser(user) {
+    return this.http.post('http://localhost:3000/api/register', user);
   }
 }

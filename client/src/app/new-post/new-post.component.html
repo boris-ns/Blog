@@ -1,0 +1,6 @@
+<h2>Add new post</h2>
+
+<input placeholder="Author" #author type="text" required /> <br />
+<input placeholder="Title" #title type="text" required /> <br />
+<textarea placeholder="Text..." #text cols=80 rows=25></textarea> <br />
+<button (click)="addPost(author.value, title.value, text.value)" type="submit">Submit</button>

@@ -1,5 +1,6 @@
 <h1>{{ post$.title }}</h1>
-<p>Author: {{ post$.author }}</p>
+<p><strong>Author: </strong>{{ post$.author }}</p>
+<p><strong>Time: </strong>{{ post$.time }}</p>
 
 <p>{{ post$.text }}</p>
 
@@ -18,7 +19,8 @@
 <ul>
     <li *ngFor="let comment of post$.comments">
         <ul id="comment">
-            <li><strong>Name:</strong>{{ comment.name }}</li>
+            <li><strong>Name: </strong>{{ comment.name }}</li>
+            <li><strong>Time: </strong>{{ comment.time }}</li>
             <li>{{ comment.comment }}</li>
         </ul>
     </li>

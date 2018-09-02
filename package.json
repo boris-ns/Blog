@@ -18,6 +18,7 @@
   "homepage": "https://github.com/boris-ns/Blog#readme",
   "dependencies": {
     "express": "^4.16.3",
-    "firebase-admin": "^6.0.0"
+    "firebase-admin": "^6.0.0",
+    "node-datetime": "^2.1.0"
   }
 }

@@ -4,6 +4,7 @@ import { AllPostsComponent } from './all-posts/all-posts.component';
 import { PostComponent } from './post/post.component';
 import { LoginComponent} from './login/login.component';
 import { RegisterComponent } from './register/register.component';
+import { NewPostComponent } from './new-post/new-post.component'
 
 const routes: Routes = [
   {
@@ -21,6 +22,10 @@ const routes: Routes = [
   {
     path: 'register',
     component: RegisterComponent
+  },
+  {
+    path: 'add-post',
+    component: NewPostComponent
   }
 ];
 

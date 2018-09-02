@@ -11,7 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 export class PostComponent implements OnInit {
 
   private postId: string;
-  post$: Object;
+  post$;
 
   constructor(private route: ActivatedRoute, private dataService: DataService) {
     this.route.params.subscribe(
@@ -33,6 +33,10 @@ export class PostComponent implements OnInit {
       postId: this.postId
     };
 
-    this.dataService.addComment(data);    
+    this.dataService.addComment(data).subscribe(response => {
+      alert('Your comment has been added.')
+    }, error => {
+      alert('There was a problem with adding your comment to the database. Try again later.');
+    });;    
   }
 }

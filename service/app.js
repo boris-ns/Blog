@@ -1,6 +1,7 @@
 const express = require('express');
 const firebase = require('firebase-admin');
 const serviceAccountKey = require('./serviceAccountKey.json');
+const dateTime = require('node-datetime');
 
 const utils = require('./utils');
 let Comment = require('./comment');
@@ -8,6 +9,7 @@ let Reader = require('./reader');
 
 const app = express();
 const port = process.env.port || 3000;
+const datetime = dateTime.create();
 
 const firebaseApp = firebase.initializeApp({
     credential: firebase.credential.cert(serviceAccountKey),
@@ -73,10 +75,11 @@ app.get('/api/posts/:id', (request, response) => {
 });
 
 app.post('/api/add-post', (request, response) => {
-    // TODO: when time comes refactor this, add evaluations etc.
-    console.log('POST [add-post] Request data: ' + JSON.stringify(request.body));
+    let data = request.body;
+    console.log('POST [add-post] Request data: ' + JSON.stringify(data));
+    data.time = datetime.format('d.m.Y. H:M'); 
     database.ref('posts').push(request.body);
-    response.send(request.body);
+    response.send(data);
 });
 
 app.put('/api/update-post/:id', (request, response) => {
@@ -97,19 +100,32 @@ app.post('/api/add-comment', (request, response) => {
         return;
     }
 
+    const time = datetime.format('d.m.Y. H:M'); 
     let readerId = utils.readerExists(dbReadersData, data.email);
+
     if (readerId) {
-        const comment = new Comment.Comment(data.postId, readerId, data.comment);
+        const comment = new Comment.Comment(data.postId, readerId, data.comment, time);
         database.ref('comments').push(comment);
     } else {
         database.ref('readers').push(new Reader.Reader(data.name, data.email)).then(snap => {
             const readerId = snap.key;
-            const comment = new Comment.Comment(data.postId, readerId, data.comment);
+            const comment = new Comment.Comment(data.postId, readerId, data.comment, time);
             database.ref('comments').push(comment);
         });
     }
 
     response.send(data);
+});
+
+app.post('/api/register', (request, response) => {
+    const user = request.body;
+    console.log('POST [register] User: ' + user);
+
+    // @TODO: implement this
+});
+
+app.post('/api/login', (request, response) => {
+    // @TODO: implement this
 });
 
 app.listen(port, () => {
